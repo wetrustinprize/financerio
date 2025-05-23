@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { serveStatic } from '@hono/node-server/serve-static'
 import { serve } from '@hono/node-server';
-import { createServer } from 'node:http2';
 
 export const server = new Hono();
 
