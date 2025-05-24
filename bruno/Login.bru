@@ -5,7 +5,13 @@ meta {
 }
 
 post {
-  url: 
-  body: none
+  url: {{base_url}}/api/login
+  body: json
   auth: inherit
+}
+
+body:json {
+  {
+    "password": "financerio"
+  }
 }
