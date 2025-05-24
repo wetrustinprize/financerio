@@ -6,40 +6,40 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     pgm.createType("transactionType", ["essential", "non-essential", "income"])
 
     pgm.createTable("categories", {
-        id: 'id',
+        id: { type: 'UUID', primaryKey: true, notNull: true },
         name: { type: 'TEXT', notNull: true },
         type: { type: '"transactionType"', notNull: true },
         archived: { type: 'boolean', default: false },
     });
 
     pgm.createTable("wallets", {
-        id: 'id',
+        id: { type: 'UUID', primaryKey: true, notNull: true },
         name: { type: 'TEXT', notNull: true },
         initialBudget: {type: 'FLOAT', default: 0 },
     });
 
     pgm.createTable("transactions", {
-        id: 'id',
+        id: { type: 'UUID', primaryKey: true, notNull: true },
         description: { type: 'TEXT'},
         amount: {type: 'float', notNull: true},
         createdAt: {type: 'timestamp', notNull: true, default: pgm.func("current_timestamp")},
 
         relatedWalletId: {
-            type: "INTEGER",
+            type: "UUID",
             notNull: true,
             references: '"wallets"',
             onDelete: "CASCADE",
         },
 
         relatedCategoryId: {
-            type: "INTEGER",
+            type: "UUID",
             notNull: false,
             references: '"categories"',
             onDelete: "SET NULL",
         },
 
         toWalletId: {
-            type: "INTEGER",
+            type: "UUID",
             notNull: false,
             references: '"wallets"',
             onDelete: "CASCADE",
