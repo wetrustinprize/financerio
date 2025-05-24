@@ -1,0 +1,4 @@
+{
+    "migrationsDir": "./server/migrations",
+    "tsconfig": "./tsconfig.json"
+}
