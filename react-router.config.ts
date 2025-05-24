@@ -2,5 +2,5 @@ import type { Config } from "@react-router/dev/config";
 
 export default {
   ssr: false,
-  appDirectory: 'client',
+  appDirectory: 'src/client',
 } satisfies Config;

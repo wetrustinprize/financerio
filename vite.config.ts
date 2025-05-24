@@ -1,6 +1,6 @@
 import { reactRouter } from "@react-router/dev/vite";
 import { getRequestListener } from "@hono/node-server";
-import { server as honoServer } from "./server";
+import { server as honoServer } from "./src/server";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
