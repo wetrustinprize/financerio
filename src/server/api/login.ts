@@ -24,10 +24,5 @@ export const handleLogin = async (c: Context<BlankEnv, "/api/login", BlankInput>
 
     const token = jwt.encode(payload, process.env.ZERO_AUTH_SECRET!);
 
-    setCookie(c, "jwt", token, {
-        // FIXME: Find a better way to handle dates lol
-        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    });
-
-    return c.text("ok", 200)
+    return c.text(token, 200)
 };
