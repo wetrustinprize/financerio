@@ -1,3 +1,6 @@
 onlyBuiltDependencies:
+  - '@heroui/shared-utils'
   - '@rocicorp/zero-sqlite3'
+  - '@tailwindcss/oxide'
+  - esbuild
   - protobufjs
