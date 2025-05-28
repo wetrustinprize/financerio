@@ -18,7 +18,7 @@ export const handleLogin = async (c: Context<BlankEnv, "/api/login", BlankInput>
         throw new HTTPException(401, { message: "Invalid password" });
 
     const payload = {
-        sub: 'access',
+        sub: 'financerior',
         iat: Math.floor(Date.now() / 1000),
     };
 

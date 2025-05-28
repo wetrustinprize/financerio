@@ -7,9 +7,13 @@ import {
   ScrollRestoration,
 } from "react-router";
 import { HeroUIProvider } from "@heroui/system";
-
+import cookies from 'js-cookie';
 import type { Route } from "./+types/root";
 import "./app.css";
+import { Zero } from "@rocicorp/zero";
+import { ZeroProvider } from "@rocicorp/zero/react";
+import { schema } from "../generic/schema";
+import { ToastProvider } from "@heroui/toast";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,6 +28,14 @@ export const links: Route.LinksFunction = () => [
   },
 ];
 
+const zero = new Zero({
+  userID: "financerior",
+  auth: () => cookies.get("jwt"),
+  server: import.meta.env.VITE_PUBLIC_SERVER,
+  schema,
+  kvStore: 'idb'
+});
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -35,7 +47,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <HeroUIProvider>
-          {children}
+          <ToastProvider />
+          <ZeroProvider zero={zero}>
+            {children}
+          </ZeroProvider>
           <ScrollRestoration />
           <Scripts />
         </HeroUIProvider>
