@@ -76,7 +76,7 @@ export default function SystemLayout() {
         <>
             <CreateWalletModal />
             <section className="p-4 flex gap-2 h-screen w-screen">
-                <div className="h-auto p-4 rounded-xl flex flex-col bg-neutral-200 w-3xs">
+                <div className="h-auto p-4 rounded-xl flex flex-col w-3xs shadow-small">
                     <section className="flex-1 flex flex-col gap-2">
                         <SidebarNav icon={MdOutlineSpaceDashboard} label="Dashboard" path="/dashboard" />
                         <SidebarNav icon={MdOutlineCategory} label="Categories" path="/categories" />
@@ -91,7 +91,7 @@ export default function SystemLayout() {
                         </Button>
                     </section>
                 </div>
-                <div className="w-auto h-auto flex-1">
+                <div className="w-auto h-auto flex flex-col flex-1">
                     <Outlet />
                 </div>
             </section>

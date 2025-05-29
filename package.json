@@ -15,6 +15,7 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@heroui/autocomplete": "^2.3.20",
     "@heroui/button": "^2.2.19",
     "@heroui/divider": "^2.2.13",
     "@heroui/input": "2.4.20-beta.3",
@@ -22,6 +23,7 @@
     "@heroui/number-input": "^2.0.9",
     "@heroui/spinner": "^2.2.16",
     "@heroui/system": "2.4.16-beta.3",
+    "@heroui/table": "^2.2.18",
     "@heroui/theme": "2.4.16-beta.2",
     "@heroui/toast": "^2.0.9",
     "@hono/node-server": "^1.14.2",

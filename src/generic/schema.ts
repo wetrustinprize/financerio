@@ -1,4 +1,4 @@
-import { createSchema, definePermissions, enumeration, number, relationships, string, table, type ExpressionBuilder } from "@rocicorp/zero";
+import { boolean, createSchema, definePermissions, enumeration, number, relationships, string, table, type ExpressionBuilder } from "@rocicorp/zero";
 import type { TransactionType } from "./types/transactionType";
 
 const walletsTable = table('wallets')
@@ -26,6 +26,7 @@ const categoriesTable = table('categories')
         id: string(),
         name: string(),
         type: enumeration<TransactionType>(),
+        archived: boolean(),
     })
     .primaryKey("id");
 
@@ -92,6 +93,7 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
 
     return {
         wallets: allowIfLogged,
+        categories: allowIfLogged,
     };
 });
 
