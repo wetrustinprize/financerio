@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate, useNavigation } from "react-router";
-import { MdLogout, MdOutlineAccountBalanceWallet, MdOutlineCategory, MdOutlineSpaceDashboard, MdSettings } from "react-icons/md";
+import { MdLogout, MdOutlineAccountBalanceWallet, MdOutlineCategory, MdOutlineSpaceDashboard, MdSettings, MdOutlineAdd } from "react-icons/md";
 import { Button } from "@heroui/button";
 import { Divider } from "@heroui/divider";
 import Cookies from "js-cookie";
@@ -33,9 +33,22 @@ function SidebarSection({ label, children, icon }: { label: string, children: Re
 }
 
 function Wallets() {
+    const navigate = useNavigate();
+
+    const WalletButton = ({ id, name, total }: { id: string, name: string, total: number }) => {
+        return (<Button className="flex justify-between" variant="light" onPress={() => navigate(`/wallets/${id}`)}>
+            <p>{name}</p>
+            <p>R$ {total.toFixed(2)}</p>
+        </Button>);
+    }
+
     return (
         <SidebarSection icon={MdOutlineAccountBalanceWallet} label="Wallets">
-            A
+            <WalletButton id="all" name="All wallets" total={1000} />
+            <Button variant="light">
+                <MdOutlineAdd />
+                New wallet
+            </Button>
         </SidebarSection>
     );
 }
