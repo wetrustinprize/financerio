@@ -9,12 +9,11 @@ import CreateCategoryModal, { openCreateCategoryModal } from "../modals/CreateCa
 import { addToast } from "@heroui/toast";
 
 // TODO: Make it possible to edit categories
+// TODO: Make it possible to sort by the table column
 
 export default function Categories() {
     const [search, setSearch] = useState<string>("");
     const [selection, setSelection] = useState<Selection | undefined>(new Set());
-
-    console.log({ selection })
 
     const z = useZero();
     let categoriesQuery = z.query.categories

@@ -31,6 +31,7 @@ export const links: Route.LinksFunction = () => [
 const zero = new Zero({
   userID: "financerior",
   auth: () => cookies.get("jwt"),
+  // TODO: Get the correct URL to connect the Zero instance
   server: "http://localhost:4848",
   schema,
   kvStore: 'mem'
