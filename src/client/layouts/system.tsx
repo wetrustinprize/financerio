@@ -34,9 +34,12 @@ function SidebarSection({ label, children, icon }: { label: string, children: Re
 
 function Wallets() {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const WalletButton = ({ id, name, total }: { id: string, name: string, total: number }) => {
-        return (<Button className="flex justify-between" variant="light" onPress={() => navigate(`/wallets/${id}`)}>
+        const isHere = location.pathname.startsWith(`/wallets/${id}`);
+
+        return (<Button className="flex justify-between" variant={isHere ? 'ghost' : 'light'} onPress={() => navigate(`/wallets/${id}`)}>
             <p>{name}</p>
             <p>R$ {total.toFixed(2)}</p>
         </Button>);
