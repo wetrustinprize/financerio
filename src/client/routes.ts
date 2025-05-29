@@ -5,7 +5,9 @@ export default [
     route("login", "routes/login.tsx"),
     layout("layouts/authenticated.tsx", [
         layout("layouts/system.tsx", [
-            route("dashboard", "routes/dashboard.tsx")
+            route("dashboard", "routes/dashboard.tsx"),
+            route("categories", "routes/categories.tsx"),
+            route("settings", "routes/settings.tsx"),
         ]),
     ]),
 ] satisfies RouteConfig;

@@ -11,6 +11,9 @@ importers:
       '@heroui/button':
         specifier: ^2.2.19
         version: 2.2.19(@heroui/system@2.4.16-beta.3(@heroui/theme@2.4.16-beta.2(tailwindcss@4.1.8))(framer-motion@12.15.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@heroui/theme@2.4.16-beta.2(tailwindcss@4.1.8))(framer-motion@12.15.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@heroui/divider':
+        specifier: ^2.2.13
+        version: 2.2.13(@heroui/theme@2.4.16-beta.2(tailwindcss@4.1.8))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@heroui/input':
         specifier: 2.4.20-beta.3
         version: 2.4.20-beta.3(@heroui/system@2.4.16-beta.3(@heroui/theme@2.4.16-beta.2(tailwindcss@4.1.8))(framer-motion@12.15.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(@heroui/theme@2.4.16-beta.2(tailwindcss@4.1.8))(@types/react@19.1.5)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -494,6 +497,13 @@ packages:
       '@heroui/system': '>=2.4.7'
       '@heroui/theme': '>=2.4.6'
       framer-motion: '>=11.5.6 || >=12.0.0-alpha.1'
+      react: '>=18 || >=19.0.0-rc.0'
+      react-dom: '>=18 || >=19.0.0-rc.0'
+
+  '@heroui/divider@2.2.13':
+    resolution: {integrity: sha512-axoFh+eAdlmEPgu8RAbfEhRop/Bld/VuhCr7r7N/CBhCHTOz0H8ja/keYQAZr8Nnxn5s/Lx0NwMuPT0SZEi23A==}
+    peerDependencies:
+      '@heroui/theme': '>=2.4.6'
       react: '>=18 || >=19.0.0-rc.0'
       react-dom: '>=18 || >=19.0.0-rc.0'
 
@@ -4142,6 +4152,16 @@ snapshots:
       '@react-types/button': 3.12.0(react@19.1.0)
       '@react-types/shared': 3.29.0(react@19.1.0)
       framer-motion: 12.15.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+
+  '@heroui/divider@2.2.13(@heroui/theme@2.4.16-beta.2(tailwindcss@4.1.8))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      '@heroui/react-rsc-utils': 2.1.7(react@19.1.0)
+      '@heroui/shared-utils': 2.1.9
+      '@heroui/system-rsc': 2.3.13(@heroui/theme@2.4.16-beta.2(tailwindcss@4.1.8))(react@19.1.0)
+      '@heroui/theme': 2.4.16-beta.2(tailwindcss@4.1.8)
+      '@react-types/shared': 3.29.0(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
