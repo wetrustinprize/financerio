@@ -4,6 +4,9 @@ import { Button } from "@heroui/button";
 import { Divider } from "@heroui/divider";
 import Cookies from "js-cookie";
 import type { IconType } from "react-icons/lib";
+import CreateWalletModal, { openCreateWalletModal } from "../modals/CreateWallet";
+import { useZero } from "../useZero";
+import { useQuery } from "@rocicorp/zero/react";
 
 function SidebarNav({ label, icon, path }: { label: string, icon: IconType, path: string }) {
     const navigate = useNavigate();
@@ -36,19 +39,24 @@ function Wallets() {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const z = useZero();
+    const query = z.query.wallets;
+    const [wallets] = useQuery(query);
+
     const WalletButton = ({ id, name, total }: { id: string, name: string, total: number }) => {
         const isHere = location.pathname.startsWith(`/wallets/${id}`);
 
-        return (<Button className="flex justify-between" variant={isHere ? 'ghost' : 'light'} onPress={() => navigate(`/wallets/${id}`)}>
+        return (<Button key={id} className="flex justify-between" variant={isHere ? 'ghost' : 'light'} onPress={() => navigate(`/wallets/${id}`)}>
             <p>{name}</p>
-            <p>R$ {total.toFixed(2)}</p>
+            <p>{total.toFixed(2)}</p>
         </Button>);
     }
 
     return (
         <SidebarSection icon={MdOutlineAccountBalanceWallet} label="Wallets">
             <WalletButton id="all" name="All wallets" total={1000} />
-            <Button variant="light">
+            {wallets.map(wallet => (<WalletButton id={wallet.id} name={wallet.name} total={0} />))}
+            <Button variant="light" onPress={() => openCreateWalletModal()}>
                 <MdOutlineAdd />
                 New wallet
             </Button>
@@ -65,25 +73,28 @@ export default function SystemLayout() {
     };
 
     return (
-        <section className="p-4 flex gap-2 h-screen w-screen">
-            <div className="h-auto p-4 rounded-xl flex flex-col bg-neutral-200 w-3xs">
-                <section className="flex-1 flex flex-col gap-2">
-                    <SidebarNav icon={MdOutlineSpaceDashboard} label="Dashboard" path="/dashboard" />
-                    <SidebarNav icon={MdOutlineCategory} label="Categories" path="/categories" />
-                    <Wallets />
-                </section>
-                <section className="flex flex-row-reverse gap-2">
-                    <Button isIconOnly color="danger" variant="flat" onPress={handleLogout}>
-                        <MdLogout />
-                    </Button>
-                    <Button isIconOnly color="primary" variant="flat" onPress={() => navigate("/settings")}>
-                        <MdSettings />
-                    </Button>
-                </section>
-            </div>
-            <div className="w-auto h-auto flex-1">
-                <Outlet />
-            </div>
-        </section>
+        <>
+            <CreateWalletModal />
+            <section className="p-4 flex gap-2 h-screen w-screen">
+                <div className="h-auto p-4 rounded-xl flex flex-col bg-neutral-200 w-3xs">
+                    <section className="flex-1 flex flex-col gap-2">
+                        <SidebarNav icon={MdOutlineSpaceDashboard} label="Dashboard" path="/dashboard" />
+                        <SidebarNav icon={MdOutlineCategory} label="Categories" path="/categories" />
+                        <Wallets />
+                    </section>
+                    <section className="flex flex-row-reverse gap-2">
+                        <Button isIconOnly color="danger" variant="flat" onPress={handleLogout}>
+                            <MdLogout />
+                        </Button>
+                        <Button isIconOnly color="primary" variant="flat" onPress={() => navigate("/settings")}>
+                            <MdSettings />
+                        </Button>
+                    </section>
+                </div>
+                <div className="w-auto h-auto flex-1">
+                    <Outlet />
+                </div>
+            </section>
+        </>
     );
 }

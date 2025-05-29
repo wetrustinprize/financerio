@@ -2,7 +2,6 @@ import type { Context } from "hono";
 import type { BlankEnv, BlankInput } from "hono/types";
 
 import { z } from "zod";
-import { setCookie } from "hono/cookie";
 import jwt from "jwt-simple";
 import { HTTPException } from "hono/http-exception";
 

@@ -18,6 +18,8 @@
     "@heroui/button": "^2.2.19",
     "@heroui/divider": "^2.2.13",
     "@heroui/input": "2.4.20-beta.3",
+    "@heroui/modal": "^2.2.16",
+    "@heroui/number-input": "^2.0.9",
     "@heroui/spinner": "^2.2.16",
     "@heroui/system": "2.4.16-beta.3",
     "@heroui/theme": "2.4.16-beta.2",
@@ -39,7 +41,9 @@
     "react-icons": "^5.5.0",
     "react-router": "^7.5.3",
     "ts-node": "^10.9.2",
-    "zod": "^3.25.28"
+    "uuid": "^11.1.0",
+    "zod": "^3.25.28",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@react-router/dev": "^7.5.3",

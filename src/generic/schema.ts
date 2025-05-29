@@ -1,4 +1,4 @@
-import { createSchema, definePermissions, enumeration, number, relationships, string, table } from "@rocicorp/zero";
+import { createSchema, definePermissions, enumeration, number, relationships, string, table, type ExpressionBuilder } from "@rocicorp/zero";
 import type { TransactionType } from "./types/transactionType";
 
 const walletsTable = table('wallets')
@@ -68,6 +68,31 @@ export const schema = createSchema({
     relationships: [categoriesRelationships, walletsRelationships, transactionsRelationships]
 });
 
-export const permissions = definePermissions<unknown, Schema>(schema, () => ({}));
+type AuthData = {
+    sub: string | null;
+};
+
+export const permissions = definePermissions<AuthData, Schema>(schema, () => {
+    const allowIfLoggedInFn = (
+        authData: AuthData,
+        { cmpLit }: ExpressionBuilder<Schema, keyof Schema["tables"]>
+    ) => cmpLit(authData.sub, "IS NOT", null);
+
+    const allowIfLogged = {
+        row: {
+            insert: [allowIfLoggedInFn],
+            update: {
+                preMutation: [allowIfLoggedInFn],
+                postMutation: [allowIfLoggedInFn],
+            },
+            delete: [allowIfLoggedInFn],
+            select: [allowIfLoggedInFn],
+        }
+    }
+
+    return {
+        wallets: allowIfLogged,
+    };
+});
 
 export type Schema = typeof schema;

@@ -31,9 +31,9 @@ export const links: Route.LinksFunction = () => [
 const zero = new Zero({
   userID: "financerior",
   auth: () => cookies.get("jwt"),
-  server: import.meta.env.VITE_PUBLIC_SERVER,
+  server: "http://localhost:4848",
   schema,
-  kvStore: 'idb'
+  kvStore: 'mem'
 });
 
 export function Layout({ children }: { children: React.ReactNode }) {
