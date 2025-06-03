@@ -5,11 +5,12 @@ import { Input } from "@heroui/input";
 import { Checkbox } from "@heroui/checkbox";
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, type Selection } from "@heroui/table";
 import { useQuery, useZero } from "@rocicorp/zero/react";
-import { useState, type ReactElement } from "react";
+import React, { createRef, useEffect, useImperativeHandle, useRef, useState, type ReactElement } from "react";
 import { MdDeleteOutline, MdEdit, MdNoteAdd, MdOutlineSearch } from "react-icons/md";
 import { Form } from "@heroui/form";
-import {Kbd} from "@heroui/kbd";
+import { Kbd } from "@heroui/kbd";
 import { v4 } from "uuid";
+import type { s } from "node_modules/framer-motion/dist/types.d-CtuPurYT";
 
 type EditableTypes = 'text' | 'checkbox';
 type EditableValidation<T> = (value: T) => true | string | undefined;
@@ -17,9 +18,11 @@ type EditableOptionsMap = {
     'text': {
         type: 'text',
         validate?: EditableValidation<string>,
+        default?: string,
     };
     'checkbox': {
         type: 'checkbox',
+        default?: boolean;
         validate?: EditableValidation<boolean>,
         format: (value: boolean) => ReactElement | string,
     },
@@ -38,7 +41,7 @@ type ShowColumns<Table extends keyof Schema['tables']> = {
 
         /** How to display this column value? */
         format?: (value: any) => ReactElement | string,
-        
+
         /** How this column will display if value is NULL? */
         emptyFormat?: () => ReactElement | string,
 
@@ -62,9 +65,9 @@ interface ITableProps<Table extends keyof Schema['tables']> {
 };
 
 export function createTableProps<Table extends keyof Schema['tables']>(
-  props: ITableProps<Table>
+    props: ITableProps<Table>
 ): ITableProps<Table> {
-  return props;
+    return props;
 }
 
 // TODO: Make it possible to edit
@@ -73,51 +76,84 @@ export function createTableProps<Table extends keyof Schema['tables']>(
 // TODO: Make it virtualized
 // TODO: Make it possible to reset the create form
 
-const CreateEditable: React.FC<{ column: Columns<any>, options: EditableOptions }> = ({ options, column}) => {
-    switch(options.type) {
+type CreateEditableRef = { reset: () => void };
+const CreateEditable = React.forwardRef<CreateEditableRef, { column: Columns<any>, options: EditableOptions }>(({ options, column }, ref) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const defaultValue = useRef<any>(undefined);
+
+    useImperativeHandle(ref, () => {
+        return {
+            reset: () => {
+                if (inputRef.current === null) return;
+
+                const hasDefault = 'default' in options && options.default !== undefined
+                inputRef.current.value = hasDefault ? options.default : defaultValue.current;
+            }
+        }
+    }, []);
+
+    switch (options.type) {
         case 'text':
+            defaultValue.current = '';
             return (
-                <Input name={column} validate={options.validate}/>
+                <Input ref={inputRef} name={column} validate={options.validate} />
             );
         case 'checkbox':
+            defaultValue.current = false;
             return (
-                <Checkbox name={column} validate={options.validate}/>
+                <Checkbox ref={inputRef} name={column} validate={options.validate}>
+                    {options.format(false)}
+                </Checkbox>
             );
         default:
             // @ts-expect-error
             throw new Error(`Unknown editable type: ${options.type}`);
     }
-};
+});
 
-const CreateEntry: React.FC<{columns: ShowColumns<any>, handleSubmit: (data: object) => void}> = ({ columns, handleSubmit }) => {
+const CreateEntry: React.FC<{ columns: ShowColumns<any>, handleSubmit: (data: object) => void }> = ({ columns, handleSubmit }) => {
+    const refs = useRef<React.RefObject<CreateEditableRef | null>[]>(Object.keys(columns).map(() => createRef()));
+
+    const reset = () => {
+        refs.current.forEach(ref => {
+            if (ref === null) return;
+            ref.current?.reset();
+        })
+    };
+
     return (
-        <Form className="block bg-primary-500 p-[2px] rounded-[calc(theme(borderRadius.xl)+2px)]" onSubmit={e => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            const data: Record<string, any> = Object.fromEntries(formData);
+        <Form className="block bg-primary-500 p-[2px] rounded-[calc(theme(borderRadius.xl)+2px)]"
+            onReset={e => {
+                e.preventDefault();
+                reset();
+            }}
+            onSubmit={e => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const data: Record<string, any> = Object.fromEntries(formData);
 
-            (Object.entries(columns) as unknown as [string, NonNullable<ShowColumns<any>[any]>][]).forEach(([key, column]) => {
-                if(column.editable === undefined) return;
+                (Object.entries(columns) as unknown as [string, NonNullable<ShowColumns<any>[any]>][]).forEach(([key, column]) => {
+                    if (column.editable === undefined) return;
 
-                switch(column.editable.type) {
-                    case 'checkbox':
-                        if(!(key in data)) {
-                            data[key] = false;
-                        } else {
-                            data[key] = true;
-                        }
-                }
-            });
+                    switch (column.editable.type) {
+                        case 'checkbox':
+                            if (!(key in data)) {
+                                data[key] = false;
+                            } else {
+                                data[key] = true;
+                            }
+                    }
+                });
 
-            handleSubmit(data);
-        }}>
+                handleSubmit(data);
+            }}>
             <div className="flex p-2 gap-2 rounded-xl bg-primary-50">
-                {(Object.entries(columns) as unknown as [string, NonNullable<ShowColumns<any>[any]>][]).map(([key, column]) => (
+                {(Object.entries(columns) as unknown as [string, NonNullable<ShowColumns<any>[any]>][]).map(([key, column], index) => (
                     <div key={key} className={`flex-1 flex flex-col gap-1`} style={{ flexBasis: column.width ?? 'auto' }}>
                         <label className="block text-foreground-500 text-tiny font-semibold">{column.label}</label>
                         <section className="flex-1 flex items-center">
                             {column.editable ? (
-                                <CreateEditable column={key} options={column.editable} />
+                                <CreateEditable ref={refs.current[index]} column={key} options={column.editable} />
                             ) : (
                                 <p className="text-foreground-300">{column.emptyFormat ? column.emptyFormat() : '---'}</p>
                             )}
@@ -126,7 +162,8 @@ const CreateEntry: React.FC<{columns: ShowColumns<any>, handleSubmit: (data: obj
                 ))}
             </div>
             <section className="p-1 flex gap-2">
-                <Button type="submit" className="font-semibold" color="primary"><Kbd keys={'enter'}/> Create</Button>
+                <Button type="submit" className="font-semibold" color="primary"><Kbd keys={'enter'} /> Create</Button>
+                <Button type="reset" className="font-semibold" color="primary"><Kbd keys={'ctrl'}>R</Kbd> Reset</Button>
             </section>
         </Form>
     );
@@ -140,18 +177,18 @@ const TableCrud = <Table extends keyof Schema['tables']>({ title, searchFrom, co
     const [selection, setSelection] = useState<Selection | undefined>(new Set());
     const [mode, setMode] = useState<'view' | 'add' | 'edit'>('view');
 
-    if(search !== "" && searchFrom !== undefined) {
+    if (search !== "" && searchFrom !== undefined) {
         query = query.where(searchFrom, 'ILIKE', `%${search}%`);
     }
 
-    const [entries] = useQuery(query) as unknown as [ {[key: string]: any}[] ];
+    const [entries] = useQuery(query) as unknown as [{ [key: string]: any }[]];
 
     const deleteEntry = () => {
-        if(selection === undefined) return;
-        if(selection instanceof Set && selection.size === 0) return;
+        if (selection === undefined) return;
+        if (selection instanceof Set && selection.size === 0) return;
 
-        if(selection instanceof Set)
-            z.mutateBatch(tx => selection.forEach(id => tx[table].delete({id: id as string})));
+        if (selection instanceof Set)
+            z.mutateBatch(tx => selection.forEach(id => tx[table].delete({ id: id as string })));
         else
             z.mutate[table].delete({ id: selection as string });
     };
@@ -178,10 +215,10 @@ const TableCrud = <Table extends keyof Schema['tables']>({ title, searchFrom, co
                 <section className="flex-1 flex gap-1">
                     {[
                         (
-                            <Button 
-                                color="primary" 
+                            <Button
+                                color="primary"
                                 variant={mode === 'add' ? 'solid' : 'ghost'}
-                                onPress={() => setMode(mode !== 'add' ? 'add' : 'view')} 
+                                onPress={() => setMode(mode !== 'add' ? 'add' : 'view')}
                                 isIconOnly
                             >
                                 <MdNoteAdd />
@@ -189,17 +226,17 @@ const TableCrud = <Table extends keyof Schema['tables']>({ title, searchFrom, co
                         ),
                         (
                             <section className="flex gap-1">
-                                <Button 
-                                    color="secondary" 
+                                <Button
+                                    color="secondary"
                                     variant={mode === 'edit' ? 'solid' : 'ghost'}
-                                    onPress={() => setMode(mode !== 'edit' ? 'edit' : 'view')} 
+                                    onPress={() => setMode(mode !== 'edit' ? 'edit' : 'view')}
                                     isIconOnly
                                 >
                                     <MdEdit />
                                 </Button>
                                 <section className={`flex gap-1 transition-all pointer-events-${mode === 'edit' ? 'auto' : 'none'} opacity-${mode === 'edit' ? '1' : '0'} translate-x-[${mode === 'edit' ? '0%' : '-100%'}]`}>
-                                    <Button 
-                                        color="danger" 
+                                    <Button
+                                        color="danger"
                                         isDisabled={mode !== 'edit' || (selection instanceof Set ? selection.size === 0 : selection === undefined)}
                                         variant="solid"
                                         onPress={deleteEntry}
@@ -219,7 +256,7 @@ const TableCrud = <Table extends keyof Schema['tables']>({ title, searchFrom, co
                 </section>
             </section>
             <section className="flex-1 flex flex-col p-4 rounded-xl shadow-small gap-2">
-                    {mode === 'add' && <CreateEntry handleSubmit={createEntry} columns={columns}/>}
+                {mode === 'add' && <CreateEntry handleSubmit={createEntry} columns={columns} />}
                 <Table onSelectionChange={setSelection} selectionMode={mode === 'edit' ? 'multiple' : 'none'} classNames={{ base: 'flex-1', wrapper: 'flex-1 shadow-none p-0' }}>
                     <TableHeader>
                         {Object.entries(columns).map(([key, column]) => (
