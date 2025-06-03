@@ -5,36 +5,36 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-} from "react-router";
-import { HeroUIProvider } from "@heroui/system";
+} from 'react-router';
+import { HeroUIProvider } from '@heroui/system';
 import cookies from 'js-cookie';
-import type { Route } from "./+types/root";
-import "./app.css";
-import { Zero } from "@rocicorp/zero";
-import { ZeroProvider } from "@rocicorp/zero/react";
-import { schema } from "../generic/schema";
-import { ToastProvider } from "@heroui/toast";
+import type { Route } from './+types/root';
+import './app.css';
+import { Zero } from '@rocicorp/zero';
+import { ZeroProvider } from '@rocicorp/zero/react';
+import { schema } from '../generic/schema';
+import { ToastProvider } from '@heroui/toast';
 
 export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
+    rel: 'preconnect',
+    href: 'https://fonts.gstatic.com',
+    crossOrigin: 'anonymous',
   },
   {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
   },
 ];
 
 const zero = new Zero({
-  userID: "financerior",
-  auth: () => cookies.get("jwt"),
+  userID: 'financerior',
+  auth: () => cookies.get('jwt'),
   // TODO: Get the correct URL to connect the Zero instance
-  server: "http://localhost:4848",
+  server: 'http://localhost:4848',
   schema,
-  kvStore: 'mem'
+  kvStore: 'mem',
 });
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -49,9 +49,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <body>
         <HeroUIProvider>
           <ToastProvider />
-          <ZeroProvider zero={zero}>
-            {children}
-          </ZeroProvider>
+          <ZeroProvider zero={zero}>{children}</ZeroProvider>
           <ScrollRestoration />
           <Scripts />
         </HeroUIProvider>
@@ -65,15 +63,15 @@ export default function App() {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
+  let message = 'Oops!';
+  let details = 'An unexpected error occurred.';
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
+    message = error.status === 404 ? '404' : 'Error';
     details =
       error.status === 404
-        ? "The requested page could not be found."
+        ? 'The requested page could not be found.'
         : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
