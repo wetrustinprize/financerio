@@ -2,7 +2,7 @@ import Cookies from "js-cookie";
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
-export default function Home() {
+const Home: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,3 +13,5 @@ export default function Home() {
 
   return null;
 }
+
+export default Home;

@@ -7,7 +7,7 @@ import { addToast } from "@heroui/toast";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router";
 
-export default function Login() {
+const Login: React.FC = () => {
     const [fetching, setFetching] = useState<boolean>(false);
     const [password, setPassword] = useState<string>("");
 
@@ -56,3 +56,5 @@ export default function Login() {
             </div>) : <Spinner />}
     </div>);
 }
+
+export default Login;

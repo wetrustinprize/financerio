@@ -6,27 +6,30 @@ const walletsTable = table('wallets')
         id: string(),
         name: string(),
         initialBudget: number(),
+        createdAt: number(),
     })
     .primaryKey("id")
 
 const transactionsTable = table("transactions")
     .columns({
         id: string(),
+        createdAt: number(),
         description: string().optional(),
-        amount: number(),
-        relatedWalletId: string(),
-        relatedCategoryId: string(),
-        // createdAt: ??? FIXME: Find out how to add date to Zero schema
-        toWalletId: string(),
+        amount: number().optional(),
+        type: enumeration<TransactionType>().optional(),
+        transactedAt: number().optional(),
+        relatedWalletId: string().optional(),
+        relatedCategoryId: string().optional(),
+        toWalletId: string().optional(),
     })
     .primaryKey("id");
 
 const categoriesTable = table('categories')
     .columns({
         id: string(),
-        name: string(),
-        type: enumeration<TransactionType>(),
         archived: boolean(),
+        createdAt: number(),
+        name: string().optional(),
     })
     .primaryKey("id");
 

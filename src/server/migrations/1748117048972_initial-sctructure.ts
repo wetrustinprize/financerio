@@ -6,27 +6,82 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     pgm.createType("transactionType", ["essential", "non-essential", "income"])
 
     pgm.createTable("categories", {
-        id: { type: 'UUID', primaryKey: true, notNull: true },
-        name: { type: 'TEXT', notNull: true },
-        type: { type: '"transactionType"', notNull: true },
-        archived: { type: 'boolean', default: false },
+        id: {
+            type: 'UUID',
+            primaryKey: true,
+            notNull: true,
+            default: pgm.func("gen_random_uuid()")
+        },
+        name: {
+            type: 'TEXT',
+            notNull: false
+        },
+        archived: {
+            type: 'boolean',
+            notNull: true,
+            default: false
+        },
+        createdAt: {
+            type: 'timestamp',
+            notNull: true,
+            default: pgm.func("current_timestamp")
+        },
     });
 
     pgm.createTable("wallets", {
-        id: { type: 'UUID', primaryKey: true, notNull: true },
-        name: { type: 'TEXT', notNull: true },
-        initialBudget: {type: 'FLOAT', default: 0 },
+        id: {
+            type: 'UUID',
+            primaryKey: true,
+            notNull: true,
+            default: pgm.func("gen_random_uuid()")
+        },
+        name: {
+            type: 'TEXT',
+            notNull: true,
+        },
+        initialBudget: {
+            type: 'FLOAT',
+            default: 0
+        },
+        createdAt: {
+            type: 'timestamp',
+            notNull: true,
+            default: pgm.func("current_timestamp")
+        },
     });
 
     pgm.createTable("transactions", {
-        id: { type: 'UUID', primaryKey: true, notNull: true },
-        description: { type: 'TEXT'},
-        amount: {type: 'float', notNull: true},
-        createdAt: {type: 'timestamp', notNull: true, default: pgm.func("current_timestamp")},
+        id: {
+            type: 'UUID',
+            primaryKey: true,
+            notNull: true,
+            default: pgm.func("gen_random_uuid()")
+        },
+        description: {
+            type: 'TEXT',
+            notNull: false,
+        },
+        amount: {
+            type: 'float',
+            notNull: false,
+        },
+        type: {
+            type: '"transactionType"',
+            notNull: false,
+        },
+        transactedAt: {
+            type: 'timestamp',
+            notNull: false,
+        },
+        createdAt: {
+            type: 'timestamp',
+            notNull: true,
+            default: pgm.func("current_timestamp")
+        },
 
         relatedWalletId: {
             type: "UUID",
-            notNull: true,
+            notNull: false,
             references: '"wallets"',
             onDelete: "CASCADE",
         },

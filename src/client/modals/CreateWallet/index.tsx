@@ -39,7 +39,7 @@ export default function CreateWalletModal() {
     }, [isOpen])
 
     return (
-        <Modal isOpen={isOpen} onOpenChange={store.setState}>
+        <Modal backdrop="blur" isOpen={isOpen} onOpenChange={store.setState}>
             <ModalContent className="p-2">
                 <ModalHeader>Create wallet</ModalHeader>
                 <ModalBody>
