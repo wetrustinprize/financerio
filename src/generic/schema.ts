@@ -114,6 +114,7 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
   return {
     wallets: allowIfLogged,
     categories: allowIfLogged,
+    transactions: allowIfLogged,
   };
 });
 

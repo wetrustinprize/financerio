@@ -31,8 +31,11 @@ import { Form } from '@heroui/form';
 import { Kbd } from '@heroui/kbd';
 import { v4 } from 'uuid';
 import { BiSelectMultiple } from 'react-icons/bi';
+import type { Query } from '@rocicorp/zero';
+import { DatePicker } from '@heroui/date-picker';
+import { CalendarDate, type DateValue } from '@internationalized/date';
 
-type EditableTypes = 'text' | 'checkbox';
+type EditableTypes = 'text' | 'checkbox' | 'date' | 'numeric';
 type EditableValidation<T> = (value: T) => true | string | undefined;
 type EditableOptionsMap = {
   text: {
@@ -45,6 +48,18 @@ type EditableOptionsMap = {
     default?: boolean;
     validate?: EditableValidation<boolean>;
     format: (value: boolean) => ReactElement | string;
+  };
+  date: {
+    type: 'date';
+    validate?: EditableValidation<DateValue>;
+    default?: DateValue;
+  };
+  numeric: {
+    type: 'numeric';
+    validate?: EditableValidation<number>;
+    default?: number;
+    min: number;
+    max: number;
   };
 };
 type EditableOptions = EditableOptionsMap[EditableTypes];
@@ -83,6 +98,9 @@ interface ITableProps<Table extends keyof Schema['tables']> {
 
   /** From where to filter a search */
   searchFrom?: Columns<Table>;
+
+  /** Function to execute before querying */
+  beforeQuery?: (query: Query<Schema, Table, any>) => void;
 }
 
 export function createTableProps<Table extends keyof Schema['tables']>(
@@ -152,6 +170,21 @@ const CreateEditable = React.forwardRef<
         >
           {options.format(false)}
         </Checkbox>
+      );
+    case 'date':
+      const now = new Date();
+      defaultValue.current = new CalendarDate(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDay(),
+      );
+      return (
+        <DatePicker
+          ref={inputRef}
+          name={column}
+          validate={options.validate}
+          onChange={onValueChange}
+        />
       );
     default:
       // @ts-expect-error Should print out the type, even if its never
@@ -255,6 +288,7 @@ const TableCrud = <Table extends keyof Schema['tables']>({
   searchFrom,
   columns,
   table,
+  beforeQuery,
 }: ITableProps<Table>) => {
   const z = useZero();
   let query = z.query[table];
@@ -268,6 +302,8 @@ const TableCrud = <Table extends keyof Schema['tables']>({
   if (search !== '' && searchFrom !== undefined) {
     query = query.where(searchFrom, 'ILIKE', `%${search}%`);
   }
+
+  if (beforeQuery) beforeQuery(query);
 
   const [entries] = useQuery(query) as unknown as [{ [key: string]: any }[]];
 
@@ -291,12 +327,10 @@ const TableCrud = <Table extends keyof Schema['tables']>({
   };
 
   const updateEntry = (id: string, column: string, value: any) => {
-    console.log({ id, column, value });
-
-    // z.mutate[table].update({
-    //   ...changes,
-    //   id,
-    // });
+    z.mutate[table].update({
+      id,
+      [column]: value,
+    });
   };
 
   return (
@@ -386,7 +420,7 @@ const TableCrud = <Table extends keyof Schema['tables']>({
               </TableColumn>
             ))}
           </TableHeader>
-          <TableBody emptyContent={'No categories'}>
+          <TableBody emptyContent={'No entries.'}>
             {entries.map((entry) => (
               <TableRow key={entry.id}>
                 {(
