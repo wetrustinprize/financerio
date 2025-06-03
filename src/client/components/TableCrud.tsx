@@ -30,7 +30,7 @@ import {
 import { Form } from '@heroui/form';
 import { Kbd } from '@heroui/kbd';
 import { v4 } from 'uuid';
-import type { s } from 'node_modules/framer-motion/dist/types.d-CtuPurYT';
+import { BiSelectMultiple } from 'react-icons/bi';
 
 type EditableTypes = 'text' | 'checkbox';
 type EditableValidation<T> = (value: T) => true | string | undefined;
@@ -91,17 +91,20 @@ export function createTableProps<Table extends keyof Schema['tables']>(
   return props;
 }
 
-// TODO: Make it possible to edit
 // TODO: Make it possible to sort by the table column
-// TODO: Make it possible to merge
 // TODO: Make it virtualized
 // TODO: Make it possible to reset the create form
+// TODO: Check if debounce would help in updateEntry
 
 type CreateEditableRef = { reset: () => void };
 const CreateEditable = React.forwardRef<
   CreateEditableRef,
-  { column: Columns<any>; options: EditableOptions }
->(({ options, column }, ref) => {
+  {
+    column: Columns<any>;
+    options: EditableOptions;
+    onValueChange?: (value: any) => void;
+  }
+>(({ options, column, onValueChange }, ref) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const defaultValue = useRef<any>(undefined);
 
@@ -119,19 +122,39 @@ const CreateEditable = React.forwardRef<
     };
   }, []);
 
+  useEffect(() => {
+    if (inputRef.current === null) return;
+    if (options.default === undefined) return;
+
+    //@ts-expect-error The default should always be the correct value
+    inputRef.current.value = options.default;
+  }, [inputRef.current, options]);
+
   switch (options.type) {
     case 'text':
       defaultValue.current = '';
-      return <Input ref={inputRef} name={column} validate={options.validate} />;
+      return (
+        <Input
+          ref={inputRef}
+          name={column}
+          validate={options.validate}
+          onValueChange={onValueChange}
+        />
+      );
     case 'checkbox':
       defaultValue.current = false;
       return (
-        <Checkbox ref={inputRef} name={column} validate={options.validate}>
+        <Checkbox
+          ref={inputRef}
+          name={column}
+          validate={options.validate}
+          onValueChange={onValueChange}
+        >
           {options.format(false)}
         </Checkbox>
       );
     default:
-      // @ts-expect-error
+      // @ts-expect-error Should print out the type, even if its never
       throw new Error(`Unknown editable type: ${options.type}`);
   }
 });
@@ -238,7 +261,9 @@ const TableCrud = <Table extends keyof Schema['tables']>({
 
   const [search, setSearch] = useState<string>('');
   const [selection, setSelection] = useState<Selection | undefined>(new Set());
-  const [mode, setMode] = useState<'view' | 'add' | 'edit'>('view');
+  const [mode, setMode] = useState<'view' | 'add' | 'edit' | 'selection'>(
+    'view',
+  );
 
   if (search !== '' && searchFrom !== undefined) {
     query = query.where(searchFrom, 'ILIKE', `%${search}%`);
@@ -265,6 +290,15 @@ const TableCrud = <Table extends keyof Schema['tables']>({
     });
   };
 
+  const updateEntry = (id: string, column: string, value: any) => {
+    console.log({ id, column, value });
+
+    // z.mutate[table].update({
+    //   ...changes,
+    //   id,
+    // });
+  };
+
   return (
     <section className="flex flex-col gap-2 flex-1">
       <section className="p-2 flex justify-between">
@@ -287,49 +321,53 @@ const TableCrud = <Table extends keyof Schema['tables']>({
       </section>
       <section className="flex">
         <section className="flex-1 flex gap-1">
-          {[
+          <Button
+            color="primary"
+            variant={mode === 'add' ? 'solid' : 'ghost'}
+            onPress={() => setMode(mode !== 'add' ? 'add' : 'view')}
+            isIconOnly
+          >
+            <MdNoteAdd />
+          </Button>
+          <Button
+            color="secondary"
+            variant={mode === 'edit' ? 'solid' : 'ghost'}
+            onPress={() => setMode(mode !== 'edit' ? 'edit' : 'view')}
+            isIconOnly
+          >
+            <MdEdit />
+          </Button>
+          <Divider orientation="vertical" />
+          <section className="flex gap-1">
             <Button
-              color="primary"
-              variant={mode === 'add' ? 'solid' : 'ghost'}
-              onPress={() => setMode(mode !== 'add' ? 'add' : 'view')}
+              color="danger"
+              variant={mode === 'selection' ? 'solid' : 'ghost'}
+              onPress={() =>
+                setMode(mode !== 'selection' ? 'selection' : 'view')
+              }
               isIconOnly
             >
-              <MdNoteAdd />
-            </Button>,
-            <section className="flex gap-1">
+              <BiSelectMultiple />
+            </Button>
+            <section
+              className={`flex gap-1 transition-all pointer-events-${mode === 'selection' ? 'auto' : 'none'} opacity-${mode === 'selection' ? '1' : '0'}`}
+            >
               <Button
-                color="secondary"
-                variant={mode === 'edit' ? 'solid' : 'ghost'}
-                onPress={() => setMode(mode !== 'edit' ? 'edit' : 'view')}
+                color="danger"
+                isDisabled={
+                  mode !== 'selection' ||
+                  (selection instanceof Set
+                    ? selection.size === 0
+                    : selection === undefined)
+                }
+                variant="solid"
+                onPress={deleteEntry}
                 isIconOnly
               >
-                <MdEdit />
+                <MdDeleteOutline />
               </Button>
-              <section
-                className={`flex gap-1 transition-all pointer-events-${mode === 'edit' ? 'auto' : 'none'} opacity-${mode === 'edit' ? '1' : '0'} translate-x-[${mode === 'edit' ? '0%' : '-100%'}]`}
-              >
-                <Button
-                  color="danger"
-                  isDisabled={
-                    mode !== 'edit' ||
-                    (selection instanceof Set
-                      ? selection.size === 0
-                      : selection === undefined)
-                  }
-                  variant="solid"
-                  onPress={deleteEntry}
-                  isIconOnly
-                >
-                  <MdDeleteOutline />
-                </Button>
-              </section>
-            </section>,
-          ].map((element, index) => (
-            <>
-              {element}
-              {index < 1 && <Divider orientation="vertical" />}
-            </>
-          ))}
+            </section>
+          </section>
         </section>
       </section>
       <section className="flex-1 flex flex-col p-4 rounded-xl shadow-small gap-2">
@@ -338,7 +376,7 @@ const TableCrud = <Table extends keyof Schema['tables']>({
         )}
         <Table
           onSelectionChange={setSelection}
-          selectionMode={mode === 'edit' ? 'multiple' : 'none'}
+          selectionMode={mode === 'selection' ? 'multiple' : 'none'}
           classNames={{ base: 'flex-1', wrapper: 'flex-1 shadow-none p-0' }}
         >
           <TableHeader>
@@ -358,9 +396,17 @@ const TableCrud = <Table extends keyof Schema['tables']>({
                   ][]
                 ).map(([key, column]) => (
                   <TableCell>
-                    {column.format
-                      ? column.format(entry[key] as never)
-                      : entry[key]}
+                    {mode === 'edit' && column.editable ? (
+                      <CreateEditable
+                        column={key}
+                        options={{ ...column.editable, default: entry[key] }}
+                        onValueChange={(v) => updateEntry(entry.id, key, v)}
+                      />
+                    ) : column.format ? (
+                      column.format(entry[key] as never)
+                    ) : (
+                      entry[key]
+                    )}
                   </TableCell>
                 ))}
               </TableRow>
