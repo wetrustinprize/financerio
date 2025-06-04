@@ -1,8 +1,6 @@
-import type { Schema } from '@/generic/schema';
 import { Button } from '@heroui/button';
 import { Divider } from '@heroui/divider';
 import { Input } from '@heroui/input';
-import { Checkbox } from '@heroui/checkbox';
 import {
   Table,
   TableBody,
@@ -13,14 +11,7 @@ import {
   type Selection,
 } from '@heroui/table';
 import { useQuery, useZero } from '@rocicorp/zero/react';
-import React, {
-  createRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-  type ReactElement,
-} from 'react';
+import React, { createRef, useRef, useState, type ReactElement } from 'react';
 import {
   MdDeleteOutline,
   MdEdit,
@@ -32,42 +23,13 @@ import { Kbd } from '@heroui/kbd';
 import { v4 } from 'uuid';
 import { BiSelectMultiple } from 'react-icons/bi';
 import type { Query } from '@rocicorp/zero';
-import { DatePicker } from '@heroui/date-picker';
-import { CalendarDate, type DateValue } from '@internationalized/date';
+import type { Columns, Schema, Tables } from '@/generic/types/schema';
+import CreateEditable, {
+  type EditableOptions,
+  type ICreateEditableRef,
+} from './CreateEditable';
 
-type EditableTypes = 'text' | 'checkbox' | 'date' | 'numeric';
-type EditableValidation<T> = (value: T) => true | string | undefined;
-type EditableOptionsMap = {
-  text: {
-    type: 'text';
-    validate?: EditableValidation<string>;
-    default?: string;
-  };
-  checkbox: {
-    type: 'checkbox';
-    default?: boolean;
-    validate?: EditableValidation<boolean>;
-    format: (value: boolean) => ReactElement | string;
-  };
-  date: {
-    type: 'date';
-    validate?: EditableValidation<DateValue>;
-    default?: DateValue;
-  };
-  numeric: {
-    type: 'numeric';
-    validate?: EditableValidation<number>;
-    default?: number;
-    min: number;
-    max: number;
-  };
-};
-type EditableOptions = EditableOptionsMap[EditableTypes];
-
-type Columns<Table extends keyof Schema['tables']> =
-  keyof Schema['tables'][Table]['columns'] & string;
-
-type ShowColumns<Table extends keyof Schema['tables']> = {
+type ShowColumns<Table extends keyof Tables> = {
   [Key in Columns<Table>]?: {
     /** The label to show in the header */
     label: string;
@@ -86,7 +48,7 @@ type ShowColumns<Table extends keyof Schema['tables']> = {
   };
 };
 
-interface ITableProps<Table extends keyof Schema['tables']> {
+interface ITableProps<Table extends keyof Tables> {
   /** The table title */
   title: ReactElement | string;
 
@@ -103,7 +65,7 @@ interface ITableProps<Table extends keyof Schema['tables']> {
   beforeQuery?: (query: Query<Schema, Table, any>) => void;
 }
 
-export function createTableProps<Table extends keyof Schema['tables']>(
+export function createTableProps<Table extends keyof Tables>(
   props: ITableProps<Table>,
 ): ITableProps<Table> {
   return props;
@@ -114,89 +76,11 @@ export function createTableProps<Table extends keyof Schema['tables']>(
 // TODO: Make it possible to reset the create form
 // TODO: Check if debounce would help in updateEntry
 
-type CreateEditableRef = { reset: () => void };
-const CreateEditable = React.forwardRef<
-  CreateEditableRef,
-  {
-    column: Columns<any>;
-    options: EditableOptions;
-    onValueChange?: (value: any) => void;
-  }
->(({ options, column, onValueChange }, ref) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const defaultValue = useRef<any>(undefined);
-
-  useImperativeHandle(ref, () => {
-    return {
-      reset: () => {
-        if (inputRef.current === null) return;
-
-        const hasDefault =
-          'default' in options && options.default !== undefined;
-        inputRef.current.value = hasDefault
-          ? options.default
-          : defaultValue.current;
-      },
-    };
-  }, []);
-
-  useEffect(() => {
-    if (inputRef.current === null) return;
-    if (options.default === undefined) return;
-
-    //@ts-expect-error The default should always be the correct value
-    inputRef.current.value = options.default;
-  }, [inputRef.current, options]);
-
-  switch (options.type) {
-    case 'text':
-      defaultValue.current = '';
-      return (
-        <Input
-          ref={inputRef}
-          name={column}
-          validate={options.validate}
-          onValueChange={onValueChange}
-        />
-      );
-    case 'checkbox':
-      defaultValue.current = false;
-      return (
-        <Checkbox
-          ref={inputRef}
-          name={column}
-          validate={options.validate}
-          onValueChange={onValueChange}
-        >
-          {options.format(false)}
-        </Checkbox>
-      );
-    case 'date':
-      const now = new Date();
-      defaultValue.current = new CalendarDate(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDay(),
-      );
-      return (
-        <DatePicker
-          ref={inputRef}
-          name={column}
-          validate={options.validate}
-          onChange={onValueChange}
-        />
-      );
-    default:
-      // @ts-expect-error Should print out the type, even if its never
-      throw new Error(`Unknown editable type: ${options.type}`);
-  }
-});
-
 const CreateEntry: React.FC<{
   columns: ShowColumns<any>;
   handleSubmit: (data: object) => void;
 }> = ({ columns, handleSubmit }) => {
-  const refs = useRef<React.RefObject<CreateEditableRef | null>[]>(
+  const refs = useRef<React.RefObject<ICreateEditableRef | null>[]>(
     Object.keys(columns).map(() => createRef()),
   );
 
@@ -243,7 +127,7 @@ const CreateEntry: React.FC<{
       <div className="flex p-2 gap-2 rounded-xl bg-primary-50">
         {(
           Object.entries(columns) as unknown as [
-            string,
+            Columns,
             NonNullable<ShowColumns<any>[any]>,
           ][]
         ).map(([key, column], index) => (
@@ -283,7 +167,7 @@ const CreateEntry: React.FC<{
   );
 };
 
-const TableCrud = <Table extends keyof Schema['tables']>({
+const TableCrud = <Table extends keyof Tables>({
   title,
   searchFrom,
   columns,
@@ -425,7 +309,7 @@ const TableCrud = <Table extends keyof Schema['tables']>({
               <TableRow key={entry.id}>
                 {(
                   Object.entries(columns) as unknown as [
-                    string,
+                    Columns,
                     NonNullable<ShowColumns<Table>[Columns<Table>]>,
                   ][]
                 ).map(([key, column]) => (

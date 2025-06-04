@@ -10,6 +10,7 @@ import {
   type ExpressionBuilder,
 } from '@rocicorp/zero';
 import type { TransactionType } from './types/transactionType';
+import type { Schema } from './types/schema';
 
 const walletsTable = table('wallets')
   .columns({
@@ -61,7 +62,7 @@ const categoriesRelationships = relationships(categoriesTable, ({ many }) => ({
 
 export const transactionsRelationships = relationships(
   transactionsTable,
-  ({ many, one }) => ({
+  ({ one }) => ({
     relatedWallet: one({
       destField: ['id'],
       sourceField: ['relatedWalletId'],
@@ -117,5 +118,3 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
     transactions: allowIfLogged,
   };
 });
-
-export type Schema = typeof schema;

@@ -27,13 +27,6 @@ export default function Wallets() {
           query.where('relatedWalletId', '=', selectedWalletId);
         },
         columns: {
-          transactedAt: {
-            label: 'At',
-            emptyFormat: () => '--/--/---',
-            editable: {
-              type: 'date',
-            },
-          },
           description: {
             label: 'Description',
             editable: {
