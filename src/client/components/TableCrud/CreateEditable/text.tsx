@@ -21,7 +21,10 @@ const TextEditable = forwardRef<
       value={value}
       name={column}
       validate={options.validate}
-      onValueChange={onValueChange}
+      onValueChange={(newValue) => {
+        if (onValueChange !== undefined) onValueChange(newValue);
+        setValue(newValue);
+      }}
     />
   );
 });
