@@ -16,6 +16,7 @@ type EditableMustHaveOptions<T> = {
     type: key;
     validate?: Validation<T>['validate'];
     default?: T;
+    isDisabled?: boolean;
   };
 };
 type EditableOptionsMap = {
@@ -26,7 +27,6 @@ type EditableOptionsMap = {
   date: EditableMustHaveOptions<number>['date'];
   select: EditableMustHaveOptions<string>['select'] & {
     items: Iterable<{ label: string; value: string }>;
-    format: (value: string) => ReactElement | string;
   };
 };
 export type EditableOptions = EditableOptionsMap[EditableTypes];
