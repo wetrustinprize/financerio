@@ -1,3 +1,5 @@
+> This repo was archived since Zero doesn't support features that would be needed to complete this projects;
+
 # Financer.io
 
 How it works?
