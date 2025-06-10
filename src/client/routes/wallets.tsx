@@ -4,6 +4,8 @@ import TableCrud, { createTableProps } from '../components/TableCrud';
 import { useQuery } from '@rocicorp/zero/react';
 import { TransactionTypeEnum } from '@/generic/types/transactionType';
 
+// TODO: Make impossible to transfer to select wallet
+
 export default function Wallets() {
   const params = useParams();
   const selectedWalletId = params.walletId || 'all';
