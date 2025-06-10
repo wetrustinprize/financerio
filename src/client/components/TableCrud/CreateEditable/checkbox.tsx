@@ -21,6 +21,9 @@ const CheckboxEditable = forwardRef<
     <Checkbox
       name={column}
       isSelected={value}
+      isDisabled={
+        options.isDisabled ? options.isDisabled(options.default) : false
+      }
       validate={options.validate}
       onValueChange={(newValue) => {
         if (onValueChange !== undefined) onValueChange(newValue);

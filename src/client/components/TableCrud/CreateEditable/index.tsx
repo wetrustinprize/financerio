@@ -16,7 +16,7 @@ type EditableMustHaveOptions<T> = {
     type: key;
     validate?: Validation<T>['validate'];
     default?: T;
-    isDisabled?: boolean;
+    isDisabled?: (value?: T) => boolean;
   };
 };
 type EditableOptionsMap = {

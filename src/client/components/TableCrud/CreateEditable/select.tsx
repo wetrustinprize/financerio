@@ -27,7 +27,9 @@ const SelectEditable = forwardRef<
       selectedKey={value}
       key={column}
       validate={options.validate}
-      isDisabled={options.isDisabled}
+      isDisabled={
+        options.isDisabled ? options.isDisabled(options.default) : false
+      }
       onSelectionChange={(key) => {
         if (key === 'null') key = null;
 

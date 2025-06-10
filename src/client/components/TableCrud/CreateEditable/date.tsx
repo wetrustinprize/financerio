@@ -47,7 +47,9 @@ const DateEditable = forwardRef<
       showMonthAndYearPickers
       name={column}
       value={value}
-      isDisabled={options.isDisabled}
+      isDisabled={
+        options.isDisabled ? options.isDisabled(options.default) : false
+      }
       validate={(date) => {
         if (options.validate === undefined) return true;
 

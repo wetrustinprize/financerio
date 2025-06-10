@@ -21,7 +21,9 @@ const TextEditable = forwardRef<
       value={value}
       name={column}
       validate={options.validate}
-      isDisabled={options.isDisabled}
+      isDisabled={
+        options.isDisabled ? options.isDisabled(options.default) : false
+      }
       onValueChange={(newValue) => {
         if (onValueChange !== undefined) onValueChange(newValue);
         setValue(newValue);
