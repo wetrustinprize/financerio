@@ -320,8 +320,12 @@ const TableCrud = <Table extends keyof Tables>({
                         options={{ ...column.editable, default: entry[key] }}
                         onValueChange={(v) => updateEntry(entry.id, key, v)}
                       />
+                    ) : !entry[key] ? (
+                      <p className="text-foreground-300">
+                        {column.emptyFormat ? column.emptyFormat() : '---'}
+                      </p>
                     ) : column.format ? (
-                      column.format(entry[key] as never)
+                          column.format(entry[key])
                     ) : (
                       entry[key]
                     )}

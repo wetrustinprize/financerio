@@ -28,10 +28,10 @@ const SelectEditable = forwardRef<
       key={column}
       validate={options.validate}
       onSelectionChange={(key) => {
-        if (key === null || typeof key !== 'string') return;
+        if (key === 'null') key = null;
 
-        if (onValueChange) onValueChange(key);
-        setValue(key);
+        if (onValueChange) onValueChange(key as any);
+        setValue(key as any);
       }}
       items={options.items}
     >

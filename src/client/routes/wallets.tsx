@@ -30,26 +30,41 @@ export default function Wallets() {
         columns: {
           ...(!showingWallet
             ? {
-              relatedWalletId: {
-                label: 'Wallet',
-                format: (value: string) => {
-                  const wallet = wallets.find(
-                    (wallet) => wallet.id === value,
-                  );
+                relatedWalletId: {
+                  label: 'Wallet',
+                  format: (value: string) => {
+                    const wallet = wallets.find(
+                      (wallet) => wallet.id === value,
+                    );
 
-                  return wallet?.name ?? 'Unknown';
+                    return wallet?.name ?? 'Unknown';
+                  },
+                  emptyFormat: () => 'No wallet',
+                  editable: {
+                    type: 'select',
+                    items: wallets.map((wallet) => ({
+                      label: wallet.name,
+                      value: wallet.id,
+                    })),
+                  },
                 },
-                emptyFormat: () => 'No wallet',
-                editable: {
-                  type: 'select',
-                  items: wallets.map((wallet) => ({
-                    label: wallet.name,
-                    value: wallet.id,
-                  })),
-                },
-              },
-            }
+              }
             : {}),
+          toWalletId: {
+            label: 'To',
+            format: (value: string) => {
+              const wallet = wallets.find((wallet) => wallet.id === value);
+
+              return wallet?.name ?? 'Unknown';
+            },
+            editable: {
+              type: 'select',
+              items: wallets.map((wallet) => ({
+                label: wallet.name,
+                value: wallet.id,
+              })),
+            },
+          },
           transactedAt: {
             label: 'Transacted at',
             format: (v: number) => new Date(v).toLocaleDateString(),
