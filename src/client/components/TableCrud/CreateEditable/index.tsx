@@ -10,7 +10,7 @@ import React, {
   type RefAttributes,
 } from 'react';
 
-type EditableTypes = 'text' | 'checkbox' | 'date';
+type EditableTypes = 'text' | 'checkbox' | 'date' | 'select';
 type EditableMustHaveOptions<T> = {
   [key in EditableTypes]: {
     type: key;
@@ -24,6 +24,10 @@ type EditableOptionsMap = {
     format: (value: boolean) => ReactElement | string;
   };
   date: EditableMustHaveOptions<number>['date'];
+  select: EditableMustHaveOptions<string>['select'] & {
+    items: Iterable<{ label: string; value: string }>;
+    format: (value: string) => ReactElement | string;
+  };
 };
 export type EditableOptions = EditableOptionsMap[EditableTypes];
 

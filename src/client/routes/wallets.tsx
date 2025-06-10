@@ -9,16 +9,17 @@ export default function Wallets() {
 
   const z = useZero();
 
-  const walletsQuery = z.query.wallets
-    .limit(1)
-    .where('id', '=', selectedWalletId);
+  const allWallets = z.query.wallets;
 
-  const [wallets] = useQuery(walletsQuery);
+  const [wallets] = useQuery(allWallets);
+  const showingWallet = wallets.find(
+    (wallet) => wallet.id === selectedWalletId,
+  );
 
   return (
     <TableCrud
       {...createTableProps({
-        title: wallets.length === 0 ? 'All wallets' : wallets[0].name,
+        title: showingWallet ? showingWallet.name : 'All wallets',
         table: 'transactions',
         searchFrom: 'description',
         beforeQuery: (query) => {
@@ -27,6 +28,28 @@ export default function Wallets() {
           query.where('relatedWalletId', '=', selectedWalletId);
         },
         columns: {
+          ...(!showingWallet
+            ? {
+              relatedWalletId: {
+                label: 'Wallet',
+                format: (value: string) => {
+                  const wallet = wallets.find(
+                    (wallet) => wallet.id === value,
+                  );
+
+                  return wallet?.name ?? 'Unknown';
+                },
+                emptyFormat: () => 'No wallet',
+                editable: {
+                  type: 'select',
+                  items: wallets.map((wallet) => ({
+                    label: wallet.name,
+                    value: wallet.id,
+                  })),
+                },
+              },
+            }
+            : {}),
           transactedAt: {
             label: 'Transacted at',
             format: (v: number) => new Date(v).toLocaleDateString(),
