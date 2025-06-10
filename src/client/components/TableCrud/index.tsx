@@ -61,8 +61,11 @@ interface ITableProps<Table extends keyof Tables> {
   /** From where to filter a search */
   searchFrom?: Columns<Table>;
 
+  /** Default values on creating new entry */
+  defaultValues?: { [key in Columns<Table>]?: any };
+
   /** Function to execute before querying */
-  beforeQuery?: (query: Query<Schema, Table, any>) => void;
+  beforeQuery?: (query: Query<Schema, Table, any>) => Query<Schema, Table, any>;
 }
 
 export function createTableProps<Table extends keyof Tables>(
@@ -173,6 +176,7 @@ const TableCrud = <Table extends keyof Tables>({
   columns,
   table,
   beforeQuery,
+  defaultValues,
 }: ITableProps<Table>) => {
   const z = useZero();
   let query = z.query[table];
@@ -187,7 +191,7 @@ const TableCrud = <Table extends keyof Tables>({
     query = query.where(searchFrom, 'ILIKE', `%${search}%`);
   }
 
-  if (beforeQuery) beforeQuery(query);
+  if (beforeQuery) query = beforeQuery(query);
 
   const [entries] = useQuery(query) as unknown as [{ [key: string]: any }[]];
 
@@ -206,6 +210,7 @@ const TableCrud = <Table extends keyof Tables>({
     z.mutate[table].insert({
       id: v4(),
       createdAt: new Date(),
+      ...defaultValues,
       ...data,
     });
   };

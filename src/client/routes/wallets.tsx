@@ -26,10 +26,21 @@ export default function Wallets() {
         title: showingWallet ? showingWallet.name : 'All wallets',
         table: 'transactions',
         searchFrom: 'description',
+        defaultValues:
+          selectedWalletId === 'all'
+            ? undefined
+            : {
+                relatedWalletId: selectedWalletId,
+              },
         beforeQuery: (query) => {
-          if (selectedWalletId === 'all') return;
+          if (selectedWalletId === 'all') return query;
 
-          query.where('relatedWalletId', '=', selectedWalletId);
+          return query.where(({ or, cmp }) =>
+            or(
+              cmp('relatedWalletId', '=', selectedWalletId),
+              cmp('toWalletId', '=', selectedWalletId),
+            ),
+          );
         },
         columns: {
           transactedAt: {
