@@ -325,7 +325,7 @@ const TableCrud = <Table extends keyof Tables>({
                         {column.emptyFormat ? column.emptyFormat() : '---'}
                       </p>
                     ) : column.format ? (
-                          column.format(entry[key])
+                      column.format(entry[key])
                     ) : (
                       entry[key]
                     )}
