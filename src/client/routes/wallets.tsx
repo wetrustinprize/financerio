@@ -2,6 +2,7 @@ import { useParams } from 'react-router';
 import { useZero } from '../useZero';
 import TableCrud, { createTableProps } from '../components/TableCrud';
 import { useQuery } from '@rocicorp/zero/react';
+import { TransactionTypeEnum } from '@/generic/types/transactionType';
 
 export default function Wallets() {
   const params = useParams();
@@ -10,11 +11,14 @@ export default function Wallets() {
   const z = useZero();
 
   const allWallets = z.query.wallets;
+  const allCategories = z.query.categories;
 
   const [wallets] = useQuery(allWallets);
   const showingWallet = wallets.find(
     (wallet) => wallet.id === selectedWalletId,
   );
+
+  const [categories] = useQuery(allCategories);
 
   return (
     <TableCrud
@@ -28,6 +32,13 @@ export default function Wallets() {
           query.where('relatedWalletId', '=', selectedWalletId);
         },
         columns: {
+          transactedAt: {
+            label: 'Transacted at',
+            format: (v: number) => new Date(v).toLocaleDateString(),
+            editable: {
+              type: 'date',
+            },
+          },
           ...(!showingWallet
             ? {
                 relatedWalletId: {
@@ -55,31 +66,50 @@ export default function Wallets() {
             format: (value: string) => {
               const wallet = wallets.find((wallet) => wallet.id === value);
 
+              if (wallet?.id === selectedWalletId) return 'Received';
+
               return wallet?.name ?? 'Unknown';
             },
             editable: {
               type: 'select',
+              isDisabled: (value) => value === selectedWalletId,
               items: wallets.map((wallet) => ({
                 label: wallet.name,
                 value: wallet.id,
               })),
             },
           },
-          transactedAt: {
-            label: 'Transacted at',
-            format: (v: number) => new Date(v).toLocaleDateString(),
+          relatedCategoryId: {
+            label: 'Category',
+            format: (value: string) => {
+              const category = categories.find(
+                (category) => category.id === value,
+              );
+
+              return category?.name ?? 'Unknown';
+            },
             editable: {
-              type: 'date',
+              type: 'select',
+              items: categories.map((category) => ({
+                label: category.name || 'No name',
+                value: category.id,
+              })),
             },
           },
           description: {
             label: 'Description',
             editable: {
               type: 'text',
-              validate: (v) => {
-                if (v === '') return "Can't be empty";
-                return true;
-              },
+            },
+          },
+          type: {
+            label: 'Type',
+            editable: {
+              type: 'select',
+              items: Object.values(TransactionTypeEnum.Values).map((value) => ({
+                label: value,
+                value,
+              })),
             },
           },
         },
